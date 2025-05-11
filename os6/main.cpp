@@ -56,3 +56,8 @@ const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
                 {10, kFrameHeight - 40},
                 {30, 30},
                 {160, 160, 160});
+
+  console = new(console_buf) Console{
+    *pixel_writer, kDesktopFGColor, kDesktopBGColor
+  };
+  printk("Welcome to MikanOS!\n");
