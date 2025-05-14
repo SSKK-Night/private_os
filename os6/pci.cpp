@@ -6,3 +6,20 @@ uint32_t MakeAddress(uint8_t bus, uint8_t device,
 
     return shl(1, 31)
                         }
+
+void WriteAddress(uint32_t address) {
+    IoOut32(kConfigAddress, address);
+}
+
+void WriteData(uint32_t value) {
+    IoOut32(kConfigData, value);
+}
+
+uint32_t ReadData() {
+    return IoIn32(kConfigData);
+}
+
+uint16_t ReadVendorId(uint8_t bus, uint8_t device, uint8_t function) {
+    WriteAddress(MakeAddress(bus, device, function, 0x00));
+    return ReadData() & 0xffffu;
+}
