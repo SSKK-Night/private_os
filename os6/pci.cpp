@@ -43,3 +43,53 @@ Error ScanAllBus() {
     }
     return Error::kSuccess;
 }
+
+Error ScanBus(uint8_t bus) {
+    for (uint8_t device = 0; device < 32; ++device) {
+        if (ReadVendorId(bus, device, 0) == 0xffffu) {
+            continue;
+        }
+        if (auto err = ScanDevice(bus, device)) {
+            return err;
+        }
+    }
+    return Error::kSuccess;
+}
+
+Error ScanDevice(uint8_t bus, uint8_t device) {
+    if (auto err = ScanFuction(bus, device, 0)) {
+        return err;
+    }
+    if (IsSingleFunctionDevice(ReadHeaderType(bus, device, 0))) {
+        return Error::kSuccess;
+    }
+
+    for (uint8_t function = 1; function < 8; ++function) {
+        if (ReadVendorId(bus, device, function) == 0xffffu) {
+            continue;
+        }
+        if (auto err = ScanFunction(bus, device, function)) {
+            return err;
+        }
+    }
+    return Error::kSuccess;
+}
+
+Error ScanFunction(uint8_t bus, uint8_t device, uint8_t function) {
+    auto header_type = ReadHeaderType(bus, device, function);
+    if (auto err = AddDevice(bus, device, function, header_type)) {
+        return err;
+    }
+
+    auto class_code = ReadClassCode(bus, device, function);
+    uint8_t base = (class_code >> 24) & 0xffu;
+    uint8_t sub = (class_code >> 16) & oxffu;
+
+    if (base == 0x06u && sub == 0x04u) {
+        auto bus_numbers = ReadBusNumbers(bus, device, function);
+        uint8_t secondary_bus = (bus_numbers >> 8) & 0xffu;
+        return ScanBus(secondary_bus);
+    }
+
+    return Error::kSuccess;
+}
