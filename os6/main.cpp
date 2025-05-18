@@ -61,3 +61,15 @@ const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
     *pixel_writer, kDesktopFGColor, kDesktopBGColor
   };
   printk("Welcome to MikanOS!\n");
+
+  auto err = pci::ScanAllBus();
+  printk("ScanAllBus: %s\n", err.Name());
+
+  for (int i = 0; i < pci::num_device; ++i) {
+    const auto& dev = pci::devices[i];
+    auto vendor_id = pci::ReadVendorId(dev.bus, dev.device, dev.function);
+    auto class_code = pci::ReadClassCode(dev.bus, dev.device, dev.function);
+    printk("%d.%d.%d: vend %04x, class %08x, head %02x\n",
+            dev.bus, dev.device, dev.function,
+            vendor_id, class_code, dev.header_type);
+  }

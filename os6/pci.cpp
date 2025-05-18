@@ -93,3 +93,14 @@ Error ScanFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     return Error::kSuccess;
 }
+
+Error AddDevice(uint8_t bus, uint8_t device,
+                uint8_t function, uint8_t header_type) {
+    if (num_device == devices.size()) {
+        return Error::kFull;
+    }
+
+    devices[num_device] = Device{bus, device, function, header_type};
+    ++num_device;
+    return Error::kSuccess;
+}
