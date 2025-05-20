@@ -107,3 +107,23 @@ const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
 
   Log(kInfo, "xHC starting\n");
   xhc.Run();
+
+  void SwitchEhci2Xci(const pci::Device& xhc_dev) {
+    bool intel_ehc_exist = false;
+    for (int i = 0; i < pci::num_device; ++i) {
+      if (pci::device[i].class_code.Match(0x0cu, 0x03u, 0x20u) /* EHCI */ &&
+          0x8086 == pci::ReadVendorId(pci::devices[i])) {
+            intel_ehc_exist = true;
+            break;
+          }
+    }
+    if (!intel_ehc_exist) {
+      return;
+    }
+    uint32_t superspeed_ports = pci::ReadConfigReg(xhc_dev, 0xdc);
+    pci::WriteConfReg(xhc_dev, 0xd8, superspeed_ports);
+    uint32_t ehci2xhci_ports = pci::ReadConfReg(xhc_dev, 0xd4);
+    pci::WriteConfReg(xhc_dev, 0xd0, ehci2xhci_ports);
+    Log(kDebug, "SwitchEhci2XHci: SS = %02, xHCi = %02x\n",
+        superspeed_ports, ehci2xhci_ports);
+  }
