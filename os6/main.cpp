@@ -127,3 +127,18 @@ const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
     Log(kDebug, "SwitchEhci2XHci: SS = %02, xHCi = %02x\n",
         superspeed_ports, ehci2xhci_ports);
   }
+
+  usb::HIDMouseDriver::default_observer = MouseObserver;
+
+  for (int i = 1; i <= xhc.MaxPorts(); ++i) {
+    auto port = xhc.PortAt(i);
+    Log(kDebug, "Port %d: IsConnected=%d\n", i, port.IsConnected());
+
+    if (port.IsConnected()) {
+      if (auto err = ConfigurePort(xhc, port)) {
+        Log(kError, "failed to configure port: %s at %s:%d\n",
+            err.Name(), err.File(), err.Line());
+        continue;
+      }
+    }
+  }
