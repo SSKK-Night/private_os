@@ -142,3 +142,17 @@ const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
       }
     }
   }
+
+  while (1) {
+    if (auto err = ProcessEvent(xhc)) {
+      Log(kError, "Error while ProcessEvent: %s at %s:%d\n",
+          err.Name(), err.File(), err.Line());
+    }
+  }
+
+  char mouse_cursor_buf[sizeof(MouseCursor)];
+  MouseCursor* mouse_cursor;
+
+  void MouseObserver(int8_t displacement_x, int8_t displacement_y) {
+    mouse_cursor->MoveRelative({displacement_x, diplacement_y})
+  }
