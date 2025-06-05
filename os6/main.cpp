@@ -156,3 +156,8 @@ const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
   void MouseObserver(int8_t displacement_x, int8_t displacement_y) {
     mouse_cursor->MoveRelative({displacement_x, diplacement_y})
   }
+
+
+  mouse_cursor = new(mouse_cursor_buf) MouseCursor{
+    pixel_writer, kDesktopBGColor, {300, 200}
+  }
