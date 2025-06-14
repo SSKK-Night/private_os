@@ -24,3 +24,16 @@ pci::ConfigureMSIFixedDestination(
     pci::MSITriggerMode::kLevel, pci::MSIDeliveryMode::kFixed,
     InterruptVector::kXHCI, 0);
 
+usb::xhci::Controller* xhc
+
+__attribute__((interrupt))
+void IntHanderXHCI(InterruptFrame* frame) {
+    while (xhc->PrimaryEventRing()->HasFront()) {
+        if (auto err = ProcessEvent(*xhc)) {
+            Log(kError, "Error while ProcessEvent: %s at %s at %s:%d\n",
+                err.Name(), err.File(), err.Line());
+        }
+    }
+    NotifyEndOfInterrupt();
+}
+
